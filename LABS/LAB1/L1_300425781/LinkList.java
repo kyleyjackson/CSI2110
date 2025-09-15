@@ -4,8 +4,8 @@
  * @author Jochen Lang
  */
 
-class LinkList {
-    Node llist;
+class LinkList<E> {
+    GNode<E> llist;
 
     LinkList( int sz ) {
 	if ( sz <= 0 ) {
@@ -13,14 +13,14 @@ class LinkList {
 	}
 	else {
 	    // start with list of size 1
-	    llist = new Node( "0", null ); 
-	    Node current = llist; // temp node for loop
-	    // add further nodes
+	    llist = new GNode<E>( "0", null ); 
+	    GNode<E> current = llist; // temp GNode<E> for loop
+	    // add further GNode<E>s
 	    for ( int i=1; i<sz; ++i ) {
-		// create node and attach it to the list
-		Node node2Add = new Node( Integer.toString(i), null );
-		current.setNext(node2Add);   // add first node
-		current=node2Add;
+		// create GNode<E> and attach it to the list
+		GNode<E> GNode2Add = new GNode( Integer.toString(i), null );
+		current.setNext(GNode2Add);   // add first GNode<E>
+		current=GNode2Add;
 	    }
 	}
     }
@@ -30,7 +30,7 @@ class LinkList {
      */
     public void print() {
 	/* Print the list */
-	Node current = llist; // point to the first node
+	GNode<E> current = llist; // point to the first GNode<E>
 	while (current != null) {
 	    System.out.print((String)current.getElement() + " ");	
 	    current = current.getNext(); // move to the next
@@ -45,14 +45,14 @@ class LinkList {
     }
 
     public void deleteLast() {
-	if ( llist == null ) return; // no node
-	Node prev = llist;
-	Node current = prev.getNext(); 
-	if ( current == null ) { // only 1 node
+	if ( llist == null ) return; // no GNode<E>
+	GNode<E> prev = llist;
+	GNode<E> current = prev.getNext(); 
+	if ( current == null ) { // only 1 GNode<E>
 	    llist = null;
 	    return;
 	}
-	while ( current.getNext() != null ) { // more than 1 node
+	while ( current.getNext() != null ) { // more than 1 GNode<E>
 	    prev = current;
 	    current = current.getNext();
 	}

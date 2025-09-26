@@ -1,23 +1,23 @@
-public class TryStack2 {
+public class TryStack1 {
 
   // Task: create tryStack2 which does the same as this class but uses a
   // LinkedStack instead of an ArrayStack
 
-  protected LinkedStack<Integer> array;
+  protected Integer[] array;
   protected Stack<Integer> stack;
 
   /**
    * Default constructor.
    */
-  public TryStack2() {
+  public TryStack1() {
     setArray(50);
   }
 
-  public TryStack2(int n) {
+  public TryStack1(int n) {
     setArray(n);
   }
 
-  public TryStack2(int n, LinkedStack<Integer> stack) {
+  public TryStack1(int n, ArrayStack<Integer> stack) {
     setArray(n);
     this.stack = stack;
   }
@@ -27,7 +27,7 @@ public class TryStack2 {
    * 
    * @return
    */
-  public LinkedStack<Integer> getArray() {
+  public Integer[] getArray() {
     return this.array;
   }
 
@@ -38,11 +38,11 @@ public class TryStack2 {
    */
   public void setArray(int n) {
     // creates an array with 50 indices
-    this.array = new LinkedStack<>();
+    this.array = new Integer[n];
 
     // populates array from 0 to n-1 with i*2
     for (int i = 0; i < n; i++) {
-      array.push(i * 2);
+      getArray()[i] = i * 2;
     }
   }
 
@@ -70,16 +70,15 @@ public class TryStack2 {
    * @return Integer[]
    */
   protected void reverseArray() {
-    LinkedStack<Integer> new1 = new LinkedStack<>();
-    int size1 = array.size();
 
-    for (int i = 0; i < size1; i++) {
-        new1.push(array.pop());
+    for (int i = 0; i < getArray().length; i++)
+      this.stack.push(getArray()[i]);
+    System.out.println("\nInspecting stack (top..bottom): " + this.stack);// testing
+
+    for (int i = 0; i < getArray().length; i++) {
+      getArray()[i] = this.stack.pop();
     }
-
-    this.array = new1;
- }
-  
+  }
 
   /**
    * Prints an array of any size.
@@ -87,7 +86,13 @@ public class TryStack2 {
    * @param arr
    */
   protected void printArray() {
-    System.out.println(array.toString());
+    System.out.println();
+
+    for (int elems : getArray()) {
+      System.out.print(elems + "\t");
+    }
+    System.out.println();
+
   }
 
   protected void runSimulation() {
@@ -105,7 +110,7 @@ public class TryStack2 {
 
     int n = args.length > 0 ? Integer.valueOf(args[0]) : 50;
 
-    TryStack2 tryStack = new TryStack2(n, new LinkedStack<>());
+    TryStack1 tryStack = new TryStack1(n, new ArrayStack<>(n));
     tryStack.runSimulation();
   }
 }

@@ -1,4 +1,4 @@
-package LABS.LAB1.L1_300425781; //* comment out b4 submission */
+//package LABS.LAB1.L1_300425781; //* comment out b4 submission */
 
 /**
  * A simple node class for a singly-linked list.  Each node has a

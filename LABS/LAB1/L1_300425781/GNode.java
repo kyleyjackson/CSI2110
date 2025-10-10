@@ -1,3 +1,5 @@
+// package LABS.LAB1.L1_300425781; //* dont forget to comment out! */
+
 // Originally part of the net.datastructures package
 /**
  * Node of a singly linked list, which stores references to its
@@ -12,15 +14,12 @@ public class GNode<E> {
   // Instance variables:
   private E element;
   private GNode<E> next;
-  /** Creates a node with null references to its element and next node. */
-  public GNode() {
-    this(null, null);
+  
+  public GNode(E element) { // updated the constructor for simplicity
+    this.element = element;
+    this.next = null;
   }
-  /** Creates a node with the given element and next node. */
-  public GNode(E e, GNode<E> n) {
-    element = e;
-    next = n;
-  }
+
   // Accessor methods:
   public E getElement() {
     return element; 

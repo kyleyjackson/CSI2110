@@ -1,4 +1,4 @@
-package LABS.LAB1.L1_300425781;
+//package LABS.LAB1.L1_300425781; //* comment out b4 submission */
 
 /** 
  * Builds a singly linked list of size 5 and prints it to the console.

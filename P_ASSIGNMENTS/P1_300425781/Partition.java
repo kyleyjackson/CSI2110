@@ -1,59 +1,118 @@
 package P_ASSIGNMENTS.P1_300425781;
 
-// imports
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
-public class Partition {
+public class Partition<E> {
 
-    // instance variables
-    private int numClusters;
-    private ArrayList<Integer> clusterSizes = new ArrayList<>();
-    private int size;
+    private static class Node<E> {
+        E element;
+        Node<E> next;
+        Node<E> prev;
+        Cluster<E> cluster; 
 
-    // constructor
-    public Partition(int s) {
+        Node(E element) {
+            this.element = element;
+            this.next = null;
+            this.prev = null;
+            this.cluster = null;
+        }
+    }
+
+    private static class Cluster<E> {
+        Node<E> head;
+        Node<E> tail;
+        int size;
+
+        Cluster(Node<E> node) {
+            this.head = node;
+            this.tail = node;
+            this.size = 1;
+        }
+    }
+
+    // partition instance variables
+    private int numClusters;                 
+    private List<Cluster<E>> clusters;       
+
+    public Partition() {
+        clusters = new LinkedList<>();
         numClusters = 0;
-        size = s;
-        clusterSizes.add(size);
-
     }
 
-    // methods
-    public int makeCluster(int x) {
+    public Node<E> makeCluster(E x) {
+        Node<E> node = new Node<>(x);
+        Cluster<E> c = new Cluster<>(node);
 
-        return -1;
+        node.cluster = c;
+        clusters.add(c);
+        numClusters++;
+
+        return node;
     }
 
-    public void union (int p, int q) {}
+    public Node<E> find(Node<E> p) {
+        if (p == null) throw new IllegalArgumentException("Position cannot be null");
 
-    public int find(int p) {
-        if ()
-
-
-        return -1;
+        return p.cluster.head; 
     }
 
-    public int element(int p) {
+    public void union(Node<E> p, Node<E> q) {
+        Cluster<E> clusterP = p.cluster;
+        Cluster<E> clusterQ = q.cluster;
 
-        return -1;
+        if (clusterP == clusterQ) return; 
+
+        if (clusterP.size > clusterQ.size) {
+            merge(clusterQ, clusterP);
+        } else {
+            merge(clusterP, clusterQ);
+        }
+
+        numClusters--;
     }
 
-    public int numberOfClusters() { return numClusters; }
+    private void merge(Cluster<E> small, Cluster<E> large) {
+        large.tail.next = small.head;
+        small.head.prev = large.tail;
+        large.tail = small.tail;
+        large.size += small.size;
 
-    public int clusterSize(int p) {
+        Node<E> current = small.head;
 
-        return -1;
+        while (current != null) {
+            current.cluster = large;
+            current = current.next;
+        }
+
+        clusters.remove(small);
     }
 
-    public int clusterPositions(int p) {
+    public E element(Node<E> p) { return p.element; }
+
+    public int numberClusters() { return numClusters; }
+
+    public int clusterSize(Node<E> p) { return p.cluster.size; }
+
+    public List<Node<E>> clusterPositions(Node<E> p) {
+        List<Node<E>> list = new ArrayList<>();
+        Node<E> current = p.cluster.head;
+
+        while (current != null) {
+            list.add(current);
+            current = current.next;
+        }
+
+        return list;
+    }
+
+    public List<Integer> clusterSizes() {
+        List<Integer> sizes = new ArrayList<>();
+
+        for (Cluster<E> c : clusters) {
+            sizes.add(c.size);
+        }
         
-        return -1;
-    }
-
-    public ArrayList<Integer> clusterSizes() {
-        Collections.sort(clusterSizes, Collections.reverseOrder());
-
-        return clusterSizes;
+        sizes.sort(Collections.reverseOrder());
+        return sizes;
     }
 }

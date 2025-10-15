@@ -1,105 +1,87 @@
 package P_ASSIGNMENTS.P1_300425781;
 
-import java.util.*;
-
 public class Partition<E> {
 
-    private static class Node<E> {
-        E element;
-        Node<E> next;
-        Node<E> prev;
-        Cluster<E> cluster; 
+    public class Node<E> {
+        private E element;
+        private Cluster<E> cluster;  
 
-        Node(E element) {
+        private Node(E element, Cluster<E> cluster) {
             this.element = element;
-            this.next = null;
-            this.prev = null;
-            this.cluster = null;
+            this.cluster = cluster;
+        }
+
+        public E getElement() {
+            return element;
+        }
+
+        public Cluster<E> getCluster() {
+            return cluster;
         }
     }
 
-    private static class Cluster<E> {
-        Node<E> head;
-        Node<E> tail;
-        int size;
+    private class Cluster<E> {
+        private LinkedList<Node<E>> sequence;
 
-        Cluster(Node<E> node) {
-            this.head = node;
-            this.tail = node;
-            this.size = 1;
+        private Cluster() {
+            sequence = new LinkedList<>();
         }
     }
 
-    // partition instance variables
-    private int numClusters;                 
-    private List<Cluster<E>> clusters;       
+    private List<Cluster<E>> clusterList;  
 
     public Partition() {
-        clusters = new LinkedList<>();
-        numClusters = 0;
+        clusterList = new LinkedList<>();
     }
 
     public Node<E> makeCluster(E x) {
-        Node<E> node = new Node<>(x);
-        Cluster<E> c = new Cluster<>(node);
+        Cluster<E> cluster = new Cluster<>();
+        Node<E> node = new Node<>(x, cluster);
 
-        node.cluster = c;
-        clusters.add(c);
-        numClusters++;
-
+        cluster.sequence.add(node);
+        clusterList.add(cluster);
+        
         return node;
     }
 
     public Node<E> find(Node<E> p) {
-        if (p == null) throw new IllegalArgumentException("Position cannot be null");
+        if (p == null) { throw new IllegalArgumentException("Null position"); }
 
-        return p.cluster.head; 
+        Cluster<E> c = p.getCluster();
+        return c.sequence.getFirst(); 
     }
 
     public void union(Node<E> p, Node<E> q) {
-        Cluster<E> clusterP = p.cluster;
-        Cluster<E> clusterQ = q.cluster;
+        if (p == null || q == null) { throw new IllegalArgumentException("Null position"); }
 
-        if (clusterP == clusterQ) return; 
+        Cluster<E> A = p.getCluster();
+        Cluster<E> B = q.getCluster();
 
-        if (clusterP.size > clusterQ.size) {
-            merge(clusterQ, clusterP);
-        } else {
-            merge(clusterP, clusterQ);
+        if (A == B) { return; }
+
+        if (A.sequence.size() > B.sequence.size()) {
+            Cluster<E> temp = A;
+            A = B;
+            B = temp;
         }
 
-        numClusters--;
-    }
-
-    private void merge(Cluster<E> small, Cluster<E> large) {
-        large.tail.next = small.head;
-        small.head.prev = large.tail;
-        large.tail = small.tail;
-        large.size += small.size;
-
-        Node<E> current = small.head;
-
-        while (current != null) {
-            current.cluster = large;
-            current = current.next;
+        for (Node<E> node : A.sequence) {
+            node.cluster = B;
+            B.sequence.addLast(node);
         }
 
-        clusters.remove(small);
+        clusterList.remove(A);
     }
 
-    public E element(Node<E> p) { return p.element; }
+    public int numberClusters() { return clusterList.size(); }
 
-    public int numberClusters() { return numClusters; }
+    public int clusterSize(Node<E> p) { return p.getCluster().sequence.size(); }
 
-    public int clusterSize(Node<E> p) { return p.cluster.size; }
+    public List<E> clusterElements(Node<E> p) {
+        List<E> list = new ArrayList<>();
 
-    public List<Node<E>> clusterPositions(Node<E> p) {
-        List<Node<E>> list = new ArrayList<>();
-        Node<E> current = p.cluster.head;
-
-        while (current != null) {
-            list.add(current);
-            current = current.next;
+        for (Node<E> n : p.getCluster().sequence) {
+            list.add(n.getElement());
         }
 
         return list;
@@ -108,11 +90,29 @@ public class Partition<E> {
     public List<Integer> clusterSizes() {
         List<Integer> sizes = new ArrayList<>();
 
-        for (Cluster<E> c : clusters) {
-            sizes.add(c.size);
+        for (Cluster<E> c : clusterList) {
+            sizes.add(c.sequence.size());
         }
-        
+
         sizes.sort(Collections.reverseOrder());
         return sizes;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        int i = 1;
+
+        for (Cluster<E> c : clusterList) {
+            sb.append("Cluster ").append(i++).append(": ");
+
+            for (Node<E> n : c.sequence) {
+                sb.append(n.getElement()).append(" ");
+            }
+
+            sb.append("\n");
+        }
+
+        return sb.toString();
     }
 }

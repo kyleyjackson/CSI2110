@@ -1,118 +1,122 @@
 package P_ASSIGNMENTS.P1_300425781;
 
-public class Partition<E> {
-
-    public class Node<E> {
-        private E element;
-        private Cluster<E> cluster;  
-
-        private Node(E element, Cluster<E> cluster) {
-            this.element = element;
-            this.cluster = cluster;
-        }
-
-        public E getElement() {
-            return element;
-        }
-
-        public Cluster<E> getCluster() {
-            return cluster;
-        }
+public class PartitionADT<E> {
+    
+    private List<Node<E>> clusters;
+    private int numClusters;
+    private List<Node<E>> allPositions;
+    
+    public PartitionADT() {
+        this.clusters = new ArrayList<>();
+        this.allPositions = new ArrayList<>();
+        this.numClusters = 0;
     }
-
-    private class Cluster<E> {
-        private LinkedList<Node<E>> sequence;
-
-        private Cluster() {
-            sequence = new LinkedList<>();
-        }
-    }
-
-    private List<Cluster<E>> clusterList;  
-
-    public Partition() {
-        clusterList = new LinkedList<>();
-    }
-
+    
     public Node<E> makeCluster(E x) {
-        Cluster<E> cluster = new Cluster<>();
-        Node<E> node = new Node<>(x, cluster);
-
-        cluster.sequence.add(node);
-        clusterList.add(cluster);
-        
-        return node;
+        Node<E> newNode = new Node<>(x);
+        clusters.add(newNode);
+        allPositions.add(newNode);
+        numClusters++;
+        return newNode;
     }
 
     public Node<E> find(Node<E> p) {
-        if (p == null) { throw new IllegalArgumentException("Null position"); }
-
-        Cluster<E> c = p.getCluster();
-        return c.sequence.getFirst(); 
+        if (p == null) {
+            throw new IllegalArgumentException("Invalid position: null");
+        }
+        return p.leader;
     }
 
     public void union(Node<E> p, Node<E> q) {
-        if (p == null || q == null) { throw new IllegalArgumentException("Null position"); }
+        if (p == null || q == null) {
+            throw new IllegalArgumentException("Invalid positions");
+        }
+        
+        Node<E> leaderP = find(p);
+        Node<E> leaderQ = find(q);
 
-        Cluster<E> A = p.getCluster();
-        Cluster<E> B = q.getCluster();
+        if (leaderP == leaderQ) {
+            return;
+        }
+        
+        int sizeP = leaderP.clusterSize;
+        int sizeQ = leaderQ.clusterSize;
 
-        if (A == B) { return; }
+        if (sizeP >= sizeQ) {
+            mergeClusters(leaderP, leaderQ, sizeP, sizeQ);
+        } else {
+            mergeClusters(leaderQ, leaderP, sizeQ, sizeP);
+        }
+    }
+    
+    private void mergeClusters(Node<E> largerLeader, Node<E> smallerLeader, int sizeLarge, int sizeSmall) {
+        largerLeader.clusterSize = sizeLarge + sizeSmall;
 
-        if (A.sequence.size() > B.sequence.size()) {
-            Cluster<E> temp = A;
-            A = B;
-            B = temp;
+        Node<E> current = largerLeader;
+        while (current.next != null) {
+            current = current.next;
         }
 
-        for (Node<E> node : A.sequence) {
-            node.cluster = B;
-            B.sequence.addLast(node);
+        current.next = smallerLeader;
+        Node<E> temp = smallerLeader;
+
+        while (temp != null) {
+            temp.leader = largerLeader;
+            temp = temp.next;
         }
 
-        clusterList.remove(A);
+        clusters.remove(smallerLeader);
+        numClusters--;
     }
 
-    public int numberClusters() { return clusterList.size(); }
+    public E element(Node<E> p) {
+        if (p == null) { throw new IllegalArgumentException("Invalid position"); }
 
-    public int clusterSize(Node<E> p) { return p.getCluster().sequence.size(); }
+        return p.element;
+    }
 
-    public List<E> clusterElements(Node<E> p) {
-        List<E> list = new ArrayList<>();
+    public int numberOfClusters() { return numClusters; }
+    
+    public int clusterSize(Node<E> p) {
+        if (p == null) { throw new IllegalArgumentException("Invalid position"); }
+        Node<E> leader = find(p);
+        return leader.clusterSize;
+    }
 
-        for (Node<E> n : p.getCluster().sequence) {
-            list.add(n.getElement());
+    public List<Node<E>> clusterPositions(Node<E> p) {
+        if (p == null) { throw new IllegalArgumentException("Invalid position"); }
+        
+        Node<E> leader = find(p);
+        List<Node<E>> positions = new ArrayList<>();
+        Node<E> current = leader;
+
+        while (current != null) {
+            positions.add(current);
+            current = current.next;
         }
-
-        return list;
+        
+        return positions;
     }
 
     public List<Integer> clusterSizes() {
         List<Integer> sizes = new ArrayList<>();
 
-        for (Cluster<E> c : clusterList) {
-            sizes.add(c.sequence.size());
+        for (Node<E> leader : clusters) {
+            sizes.add(leader.clusterSize);
         }
 
         sizes.sort(Collections.reverseOrder());
         return sizes;
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
+    public List<E> clusterElements(Node<E> p) {
+        List<Node<E>> positions = clusterPositions(p);
+        List<E> elements = new ArrayList<>();
 
-        int i = 1;
-
-        for (Cluster<E> c : clusterList) {
-            sb.append("Cluster ").append(i++).append(": ");
-
-            for (Node<E> n : c.sequence) {
-                sb.append(n.getElement()).append(" ");
-            }
-
-            sb.append("\n");
+        for (Node<E> node : positions) {
+            elements.add(node.element);
         }
 
-        return sb.toString();
+        return elements;
     }
 }
